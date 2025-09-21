@@ -13,12 +13,12 @@ func (q *QemuInstance) Start() error {
 	}
 
 	// Connect QMP
-	conn, reader, err := service.ConnectWithQemuQmpSocket()
+	conn, reader, err := ConnectWithQemuQmpSocket()
 	if err != nil {
 		return fmt.Errorf("QMP connection failed: %w", err)
 	}
 
-	q.Instance = service.VMResource{
+	q.Instance = VMResource{
 		Connection: conn,
 		Reader:     reader,
 	}

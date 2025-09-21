@@ -1,43 +1,43 @@
 package main
 
 import (
-	"log"
 	"os"
 	"os/signal"
 	"syscall"
 
+	"go.uber.org/zap"
+
+	"github.com/saurabh254/PCloudVM/backend/internal/config"
 	"github.com/saurabh254/PCloudVM/backend/internal/core/qemu"
 )
 
 func main() {
-	// Generate a stable instance ID
+	config.InitLogger("dev") // or "prod"
+	defer config.Logger.Sync()
+
 	id := qemu.GenerateInstanceID("micro-t1")
+	vm := qemu.NewQemuInstance(id, "micro-t1", "1G", 2, 2)
 
-	// Create VM instance
-	vmInstance := qemu.NewQemuInstance(id, "micro-t1", "1G", 2, 2)
-
-	// Boot VM and wait until ready
-	if err := vmInstance.Start(); err != nil {
-		log.Fatalf("failed to start VM: %v", err)
+	if err := vm.Start(); err != nil {
+		config.Logger.Fatal("failed to start VM",
+			zap.String("instance_id", id),
+			zap.Error(err),
+		)
 	}
 
-	log.Printf("VM %s is running. Press Ctrl+C to stop...", id)
+	config.Logger.Info("VM is running", zap.String("instance_id", id))
 
-	// Wait for Ctrl+C / SIGTERM
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, os.Interrupt, syscall.SIGTERM)
 	<-sig
 
-	log.Println("Sending graceful shutdown...")
-	if err := vmInstance.ShutdownGracefully(); err != nil {
-		log.Printf("Graceful shutdown failed: %v", err)
-	}
+	config.Logger.Info("Graceful shutdown requested", zap.String("instance_id", id))
+	if err := vm.ShutdownGracefully(); err != nil {
+		config.Logger.Warn("graceful shutdown failed",
+			zap.String("instance_id", id),
+			zap.Error(err),
+		)
 
-	log.Println("Waiting for VM to shutdown. Press Ctrl+C again to force quit...")
-	<-sig
-
-	log.Println("Force quitting VM...")
-	if err := vmInstance.ForceShutdown(); err != nil {
-		log.Printf("Force shutdown failed: %v", err)
+		config.Logger.Info("Gracefull shutdown success", zap.Error(err))
 	}
 }

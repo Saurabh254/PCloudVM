@@ -16,6 +16,7 @@ build/
 dist/
 .cache/
 .next/
+images
 out/
 
 # ========================

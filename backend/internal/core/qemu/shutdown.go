@@ -2,27 +2,26 @@ package qemu
 
 import (
 	"encoding/json"
-	"log"
 
-	"github.com/saurabh254/PCloudVM/backend/internal/core/service"
+	"github.com/saurabh254/PCloudVM/backend/internal/config"
 )
 
 func (q *QemuInstance) ShutdownGracefully() error {
-	cmd := service.QMPCommand{Execute: "system_powerdown"}
+	cmd := QMPCommand{Execute: "system_powerdown"}
 	data, _ := json.Marshal(cmd)
 	if _, err := q.Instance.Connection.Write(data); err != nil {
 		return err
 	}
-	log.Println("Sent system_powerdown signal")
+	config.Logger.Debug("sent system_powerdown signal")
 	return nil
 }
 
 func (q *QemuInstance) ForceShutdown() error {
-	cmd := service.QMPCommand{Execute: "quit"}
+	cmd := QMPCommand{Execute: "quit"}
 	data, _ := json.Marshal(cmd)
 	if _, err := q.Instance.Connection.Write(data); err != nil {
 		return err
 	}
-	log.Println("Sent quit signal")
+	config.Logger.Debug("sent quit signal")
 	return nil
 }
