@@ -1,9 +1,4 @@
 package config
 
-func Load() *Config {
-	return &Config{
-		AppName: "PCloudVM Backend",
-		Port:    8080,
-		Debug:   true,
-	}
-}
+// DevEnvironment holds dev specific flags if needed
+const DevEnvironment = "dev"

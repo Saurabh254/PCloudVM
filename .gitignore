@@ -30,8 +30,12 @@ out/
 *.dylib
 
 # Output of 'go build'
+bin/
 /bin/
+backend/bin/
 /out/
+backend/data/
+data/
 
 # Test binary
 *.test
